@@ -18,7 +18,8 @@ rclu add localhost:6379
 # multiple nodes:
 # recommended for dynamic scaling, it will be split cluster into subclusters
 # and each subcluster will be resharding simultaneously
-rclu multi_add localhost:6381,localhost:6382
+# <cluster> <masters>
+rclu multi_add localhost:6376 localhost:6381,localhost:6382
 ```
 
 
