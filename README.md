@@ -9,6 +9,13 @@ rclu create localhost:6376,localhost:6377,localhost:6378
 ```
 
 
+##### Show status
+
+```bash
+rclu status localhost:6376
+```
+
+
 ##### Add masters
 
 ```bash
