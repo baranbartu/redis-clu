@@ -1,4 +1,8 @@
+import time
+
 from redisclu.cli import helper as cli_helper
+from redisclu.cluster import Cluster
+from redisclu.node import Node
 
 
 @cli_helper.command
@@ -22,9 +26,20 @@ def fix(args):
 @cli_helper.command
 @cli_helper.argument('cluster')
 @cli_helper.argument('master')
-def add(args):
-    print args.cluster
-    print args.master
+@cli_helper.pass_ctx
+def add(ctx, args):
+    """
+    add master node to cluster
+    """
+    cluster = Cluster.from_node(Node.from_uri(args.cluster))
+
+    if not cluster.healthy():
+        ctx.abort('Cluster not healthy.')
+
+    cluster.add_master(args.master)
+    cluster.reshard()
+    cluster.wait()
+    cluster.print_attempts()
 
 
 @cli_helper.command
@@ -43,9 +58,15 @@ def reshard(args):
 
 @cli_helper.command
 @cli_helper.argument('cluster')
-@cli_helper.argument('master')
+@cli_helper.argument('node')
 def remove(args):
-    print args.master
+    """
+    remove node from cluster
+    """
+    cluster = Cluster.from_node(Node.from_uri(args.cluster))
+    cluster.remove_node(Node.from_uri(args.node))
+    cluster.wait()
+    cluster.print_attempts()
 
 
 @cli_helper.command

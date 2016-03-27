@@ -106,7 +106,7 @@ class Cluster(object):
                 self.migrate(src, n["node"], count)
 
     @failover.on_timeout
-    def delete_node(self, node):
+    def remove_node(self, node):
         if node.is_master():
             self.migrate_node(node)
 
@@ -122,31 +122,15 @@ class Cluster(object):
         assert not node.slots
         node.reset()
 
-    def add_node(self, node):
-        """Add a node to cluster.
-
-        :param node: should be formated like this
-        `{'addr': '', 'role': 'slave', 'master': 'master_node_id'}
+    def add_master(self, master):
         """
-        new = Node.from_uri(node['addr'])
+        Add a master node to cluster.
+        """
+        new = Node.from_uri(master)
         cluster_member = self.nodes[0]
         new.meet(cluster_member.host, cluster_member.port)
         self.nodes.append(new)
-
         self.wait()
-
-        if node['role'] != 'slave':
-            return
-
-        if 'master' in node:
-            target = self.get_node(node['master'])
-            if not target:
-                raise NodeNotFound(node['master'])
-        else:
-            masters = sorted(self.masters, key=lambda x: len(x.slaves(x.name)))
-            target = masters[0]
-
-        new.replicate(target.name)
 
     def fill_slots(self):
         masters = self.masters
