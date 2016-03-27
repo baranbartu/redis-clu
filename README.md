@@ -33,8 +33,8 @@ rclu multi_add localhost:6376 localhost:6381,localhost:6382
 ##### Add slaves
 
 ```bash
-# <master> <slave>
-rclu replicate localhost:6376 localhost:6385
+# <cluster> <master>,<slave>
+rclu replicate localhost:6376 localhost:6377,localhost:6385
 ```
 
 
