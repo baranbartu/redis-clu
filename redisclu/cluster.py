@@ -122,9 +122,9 @@ class Cluster(object):
         assert not node.slots
         node.reset()
 
-    def add_master(self, master):
+    def add_node(self, master):
         """
-        Add a master node to cluster.
+        Add node to cluster.
         """
         new = Node.from_uri(master)
         cluster_member = self.nodes[0]

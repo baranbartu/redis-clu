@@ -1,3 +1,5 @@
+import redis
+
 from redisclu.cli import helper as cli_helper
 from redisclu.cluster import Cluster
 from redisclu.node import Node
@@ -32,6 +34,14 @@ def status(args):
         echo('"rclu fix {}" would be great!'.format(args.cluster),
              color='yellow')
 
+    echo('\n')
+
+    for master in cluster.masters:
+        echo(master)
+        echo('===========================')
+        echo(master.execute_command('info', 'keyspace'))
+        echo('\n')
+
 
 @cli_helper.command
 @cli_helper.argument('cluster')
@@ -46,6 +56,7 @@ def fix(args):
 @cli_helper.command
 @cli_helper.argument('cluster')
 @cli_helper.argument('master')
+@cli_helper.argument("--keyMigrationCount", default=1)
 @cli_helper.pass_ctx
 def add(ctx, args):
     """
@@ -56,7 +67,8 @@ def add(ctx, args):
         ctx.abort(
             'Cluster not healthy. Run "rclu fix {}" first'.format(
                 args.cluster))
-    cluster.add_master(args.master)
+    cluster.set_key_migration_count(int(args.keyMigrationCount))
+    cluster.add_node(args.master)
     cluster.reshard()
     cluster.wait()
     cluster.print_attempts()
@@ -72,13 +84,24 @@ def multi_add(args):
 
 @cli_helper.command
 @cli_helper.argument('cluster')
-def reshard(args):
-    print args.cluster
+@cli_helper.argument("--keyMigrationCount", default=1)
+@cli_helper.pass_ctx
+def reshard(ctx, args):
+    cluster = Cluster.from_node(Node.from_uri(args.cluster))
+    if not cluster.healthy():
+        ctx.abort(
+            'Cluster not healthy. Run "rclu fix {}" first'.format(
+                args.cluster))
+    cluster.set_key_migration_count(int(args.keyMigrationCount))
+    cluster.reshard()
+    cluster.wait()
+    cluster.print_attempts()
 
 
 @cli_helper.command
 @cli_helper.argument('cluster')
 @cli_helper.argument('node')
+@cli_helper.argument("--keyMigrationCount", default=1)
 @cli_helper.pass_ctx
 def remove(ctx, args):
     """
@@ -89,17 +112,28 @@ def remove(ctx, args):
         ctx.abort(
             'Cluster not healthy. Run "rclu fix {}" first'.format(
                 args.cluster))
+    cluster.set_key_migration_count(int(args.keyMigrationCount))
     cluster.remove_node(Node.from_uri(args.node))
     cluster.wait()
     cluster.print_attempts()
 
 
 @cli_helper.command
-@cli_helper.argument('slave')
 @cli_helper.argument('master')
-def replicate(args):
-    print args.slave
-    print args.master
+@cli_helper.argument('slave')
+@cli_helper.pass_ctx
+def replicate(ctx, args):
+    master = Node.from_uri(args.master)
+    if not master.is_master():
+        ctx.abort('Node {} is not a master.'.format(args.master))
+    cluster = Cluster.from_node(master)
+    cluster.add_node(args.slave)
+    slave = Node.from_uri(args.slave)
+    try:
+        slave.replicate(master.name)
+    except redis.ResponseError as e:
+        ctx.abort(str(e))
+    cluster.wait()
 
 
 @cli_helper.command

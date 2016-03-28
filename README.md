@@ -2,9 +2,11 @@
 Redis Cluster Management Tool (Still development)
 Create and manage redis cluster easily.
 
-Also you can use monitoring script which is 'watch-cluster.sh'. (Recommended with 'watch')
+Also you can make your own monitoring screen using 'watch'.
 
-    watch -d -n 1 'rclu status localhost:6376;./watch-cluster.sh -c localhost:6376'
+    brew install watch (For Mac OSx)
+    rclu status <cluster_node>
+    watch -d -n 1 'rclu status localhost:6376'
 
 Monitoring will help you to make an action.
 
