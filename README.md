@@ -42,8 +42,8 @@ rclu multi_add localhost:6376 localhost:6381,localhost:6382
 ##### Add slaves
 
 ```bash
-# <cluster> <master>,<slave>
-rclu replicate localhost:6376 localhost:6377,localhost:6385
+# <master> <slave>
+rclu replicate localhost:6376 localhost:6385
 ```
 
 
@@ -54,14 +54,14 @@ rclu fix localhost:6376
 ```
 
 
-##### Reshard cluster
+##### Reshard cluster (Slot balancing)
 
 ```bash
 rclu reshard localhost:6376
 ```
 
 
-##### Remove master
+##### Remove node
 
 ```bash
 # <cluster> <master>
