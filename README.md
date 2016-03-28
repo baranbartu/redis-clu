@@ -76,3 +76,8 @@ rclu destroy localhost:6376
 ```
 
 
+# Monitoring
+
+![ScreenShot](https://raw.github.com/baranbartu/redis-clu/master/screenshot.png)
+
+
