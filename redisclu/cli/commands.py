@@ -102,6 +102,7 @@ def add(ctx, args):
 @cli_helper.command
 @cli_helper.argument('cluster')
 @cli_helper.argument('masters', nargs='+')
+@cli_helper.argument('--keyMigrationCount', default=1)
 @cli_helper.pass_ctx
 def add_multi(ctx, args):
     cluster = Cluster.from_node(Node.from_uri(args.cluster))
@@ -135,6 +136,7 @@ def add_multi(ctx, args):
             *[n.slots for n in nodes])))
         sub_cluster = Cluster(nodes, hash_slots=hash_slots,
                               parent_nodes=cluster.nodes)
+        sub_cluster.set_key_migration_count(int(args.keyMigrationCount))
         sub_clusters.append(sub_cluster)
         for sn in sub_nodes:
             masters.pop(masters.index(sn))
