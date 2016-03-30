@@ -1,3 +1,5 @@
+import sys
+import time
 import redis
 import concurrent.futures
 
@@ -10,25 +12,27 @@ from redisclu.utils import echo
 @cli_helper.command
 @cli_helper.argument('masters', nargs='+')
 def create(args):
-    def check(master_nodes):
-        # check pre-requirements
-        for master in master_nodes:
-            if not master.info().get('cluster_enabled'):
-                return False
-            master.execute_command('select', '0')
-            if master.randomkey():
-                return False
-            if master.cluster_info()['cluster_known_nodes'] != 1:
-                return False
-        return True
-
     masters = [Node.from_uri(i) for i in args.masters]
-    if not check(masters):
+    creator = cli_helper.ClusterCreator(masters)
+    if not creator.check():
         echo('Pre-requirements to create cluster.\n', color='red')
-        echo('\t1. set redis conf <cluster_enabled>')
-        echo('\t2. remove all keys in db 0')
-        echo('\t3. not a member of other cluster')
+        echo('\t1. At least 2 redis instances must be provided.')
+        echo('\t2. Should be set <cluster_enabled> on redis server conf.')
+        echo('\t3. Should be removed all keys in db 0.')
+        echo('\t4. Any redis instance should not be member of other cluster.')
         exit()
+    creator.initialize_slots()
+    creator.show_cluster_info()
+    creator.set_slots()
+    creator.assign_config_epoch()
+    creator.join_cluster()
+    echo('Waiting for the cluster to join ', end='')
+    sys.stdout.flush()
+    time.sleep(1)
+    while not creator.cluster.consistent():
+        echo('.', end='')
+        sys.stdout.flush()
+        time.sleep(1)
 
 
 @cli_helper.command
@@ -50,7 +54,7 @@ def status(args):
         echo('Cluster is healthy!', color='green')
     else:
         echo('Cluster is not healthy!!!', color='red')
-        echo('"rclu fix {}" would be great!'.format(args.cluster),
+        echo('"redis-clu fix {}" would be great!'.format(args.cluster),
              color='yellow')
 
     echo('\n')
@@ -75,16 +79,16 @@ def fix(args):
 @cli_helper.command
 @cli_helper.argument('cluster')
 @cli_helper.argument('master')
-@cli_helper.argument("--keyMigrationCount", default=1)
+@cli_helper.argument('--keyMigrationCount', default=1)
 @cli_helper.pass_ctx
 def add(ctx, args):
-    """
+    '''
     add master node to cluster
-    """
+    '''
     cluster = Cluster.from_node(Node.from_uri(args.cluster))
     if not cluster.healthy():
         ctx.abort(
-            'Cluster not healthy. Run "rclu fix {}" first'.format(
+            'Cluster not healthy. Run "redis-clu fix {}" first'.format(
                 args.cluster))
     cluster.set_key_migration_count(int(args.keyMigrationCount))
     cluster.add_node(args.master)
@@ -103,13 +107,13 @@ def multi_add(args):
 
 @cli_helper.command
 @cli_helper.argument('cluster')
-@cli_helper.argument("--keyMigrationCount", default=1)
+@cli_helper.argument('--keyMigrationCount', default=1)
 @cli_helper.pass_ctx
 def reshard(ctx, args):
     cluster = Cluster.from_node(Node.from_uri(args.cluster))
     if not cluster.healthy():
         ctx.abort(
-            'Cluster not healthy. Run "rclu fix {}" first'.format(
+            'Cluster not healthy. Run "redis-clu fix {}" first'.format(
                 args.cluster))
     cluster.set_key_migration_count(int(args.keyMigrationCount))
     cluster.reshard()
@@ -120,16 +124,16 @@ def reshard(ctx, args):
 @cli_helper.command
 @cli_helper.argument('cluster')
 @cli_helper.argument('node')
-@cli_helper.argument("--keyMigrationCount", default=1)
+@cli_helper.argument('--keyMigrationCount', default=1)
 @cli_helper.pass_ctx
 def remove(ctx, args):
-    """
+    '''
     remove node from cluster
-    """
+    '''
     cluster = Cluster.from_node(Node.from_uri(args.cluster))
     if not cluster.healthy():
         ctx.abort(
-            'Cluster not healthy. Run "rclu fix {}" first'.format(
+            'Cluster not healthy. Run "redis-clu fix {}" first'.format(
                 args.cluster))
     cluster.set_key_migration_count(int(args.keyMigrationCount))
     cluster.remove_node(Node.from_uri(args.node))

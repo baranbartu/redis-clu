@@ -42,11 +42,3 @@ class ClusterNotHealthy(RedisCluException):
 
 class ClusterNotConsistent(RedisCluException):
     pass
-
-
-class NodeNotFound(RedisCluException):
-    def __init__(self, node_id):
-        self.node_id = node_id
-
-    def __str__(self):
-        return 'Node "{}" not found.'.format(self.node_id)

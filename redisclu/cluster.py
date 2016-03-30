@@ -4,12 +4,14 @@ import hashlib
 import failover
 
 from node import Node
-from exceptions import (ClusterNotHealthy, ClusterNotConsistent, NodeNotFound)
+from exceptions import (ClusterNotHealthy, ClusterNotConsistent)
 from utils import (divide, echo)
 
 
 class Cluster(object):
-    def __init__(self, nodes, hash_slots=16384):
+    CLUSTER_HASH_SLOTS = 16384
+
+    def __init__(self, nodes, hash_slots=CLUSTER_HASH_SLOTS):
         self.nodes = nodes
         self.CLUSTER_HASH_SLOTS = hash_slots
         self.attempts = []
