@@ -10,7 +10,25 @@ from redisclu.utils import echo
 @cli_helper.command
 @cli_helper.argument('masters', nargs='+')
 def create(args):
-    print args.masters
+    def check(master_nodes):
+        # check pre-requirements
+        for master in master_nodes:
+            if not master.info().get('cluster_enabled'):
+                return False
+            master.execute_command('select', '0')
+            if master.randomkey():
+                return False
+            if master.cluster_info()['cluster_known_nodes'] != 1:
+                return False
+        return True
+
+    masters = [Node.from_uri(i) for i in args.masters]
+    if not check(masters):
+        echo('Pre-requirements to create cluster.\n', color='red')
+        echo('\t1. set redis conf <cluster_enabled>')
+        echo('\t2. remove all keys in db 0')
+        echo('\t3. not a member of other cluster')
+        exit()
 
 
 @cli_helper.command
