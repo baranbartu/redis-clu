@@ -35,7 +35,7 @@ redis-clu add localhost:6379
 # recommended for dynamic scaling, it will be split cluster into subclusters
 # and each subcluster will be resharding simultaneously
 # <cluster> <masters>
-redis-clu multi_add localhost:6376 localhost:6381,localhost:6382
+redis-clu add_multi localhost:6376 localhost:6381 localhost:6382
 ```
 
 
