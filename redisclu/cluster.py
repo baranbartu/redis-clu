@@ -11,8 +11,10 @@ from utils import (divide, echo)
 class Cluster(object):
     CLUSTER_HASH_SLOTS = 16384
 
-    def __init__(self, nodes, hash_slots=CLUSTER_HASH_SLOTS):
+    def __init__(self, nodes, hash_slots=CLUSTER_HASH_SLOTS,
+                 parent_nodes=None):
         self.nodes = nodes
+        self.parent_nodes = parent_nodes if parent_nodes else nodes
         self.CLUSTER_HASH_SLOTS = hash_slots
         self.attempts = []
         self.key_migration_count = 1
@@ -176,7 +178,7 @@ class Cluster(object):
             src.migrate_slot(dst, slot, self)
 
     def update_slot_mapping(self, slot, dst_name):
-        for node in self.nodes:
+        for node in self.parent_nodes:
             node.set_slot('NODE', slot, dst_name)
 
     def print_attempts(self):

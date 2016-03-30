@@ -173,3 +173,6 @@ class Node(object):
             if not keys:
                 break
             yield keys
+
+
+class MockNode(object): pass

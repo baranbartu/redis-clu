@@ -1,11 +1,14 @@
 import sys
 import time
 import redis
+import itertools
 import concurrent.futures
+
+from random import shuffle
 
 from redisclu.cli import helper as cli_helper
 from redisclu.cluster import Cluster
-from redisclu.node import Node
+from redisclu.node import Node, MockNode
 from redisclu.utils import echo
 
 
@@ -81,9 +84,9 @@ def fix(args):
 @cli_helper.argument('--keyMigrationCount', default=1)
 @cli_helper.pass_ctx
 def add(ctx, args):
-    '''
+    """
     add master node to cluster
-    '''
+    """
     cluster = Cluster.from_node(Node.from_uri(args.cluster))
     if not cluster.healthy():
         ctx.abort(
@@ -99,9 +102,59 @@ def add(ctx, args):
 @cli_helper.command
 @cli_helper.argument('cluster')
 @cli_helper.argument('masters', nargs='+')
-def multi_add(args):
-    print args.cluster
-    print args.masters
+@cli_helper.pass_ctx
+def add_multi(ctx, args):
+    cluster = Cluster.from_node(Node.from_uri(args.cluster))
+    if len(args.masters) > len(cluster.nodes):
+        ctx.abort('Length of new node list should be less than length of '
+                  'cluster master nodes.')
+    if not cluster.healthy():
+        ctx.abort(
+            'Cluster not healthy. Run "redis-clu fix {}" first'.format(
+                args.cluster))
+    masters = filter(lambda n: n.is_master(), cluster.nodes)
+    residual_count = len(masters) % len(args.masters)
+    if residual_count:
+        for i in range(len(args.masters) - residual_count):
+            masters.append(MockNode())
+
+    for master in args.masters:
+        cluster.add_node(master)
+
+    shard_ratio = len(masters) / len(args.masters)
+
+    shuffle(masters)
+
+    sub_clusters = []
+    while masters:
+        sub_nodes = masters[:shard_ratio]
+        new_master = args.masters.pop()
+        nodes = filter(lambda n: not isinstance(n, MockNode), sub_nodes)
+        nodes.extend(*(Node.from_uri(new_master),))
+        hash_slots = len(list(itertools.chain(
+            *[n.slots for n in nodes])))
+        sub_cluster = Cluster(nodes, hash_slots=hash_slots,
+                              parent_nodes=cluster.nodes)
+        sub_clusters.append(sub_cluster)
+        for sn in sub_nodes:
+            masters.pop(masters.index(sn))
+
+    future_to_args = dict()
+    executor = concurrent.futures.ThreadPoolExecutor(
+        max_workers=len(sub_clusters))
+
+    for sub_cluster in sub_clusters:
+        args = ()
+        future = executor.submit(sub_cluster.reshard)
+        future_to_args.setdefault(future, args)
+
+    concurrent.futures.wait(future_to_args)
+    executor.shutdown(wait=False)
+    time.sleep(1)
+    cluster.wait()
+
+    for sub_cluster in sub_clusters:
+        sub_cluster.print_attempts()
 
 
 @cli_helper.command
