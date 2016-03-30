@@ -1,4 +1,5 @@
 import redis
+import concurrent.futures
 
 from redisclu.cli import helper as cli_helper
 from redisclu.cluster import Cluster
@@ -138,8 +139,24 @@ def replicate(ctx, args):
 
 @cli_helper.command
 @cli_helper.argument('cluster')
-def destroy(args):
-    print args.cluster
+@cli_helper.argument('--hard', default=0)
+def reset(args):
+    cluster = Cluster.from_node(Node.from_uri(args.cluster))
+    future_to_args = dict()
+    executor = concurrent.futures.ThreadPoolExecutor(
+        max_workers=len(cluster.masters))
+
+    for master in cluster.masters:
+        f_args = ()
+        future = executor.submit(master.flushall)
+        future_to_args.setdefault(future, f_args)
+
+    concurrent.futures.wait(future_to_args)
+    executor.shutdown(wait=False)
+
+    if int(args.hard) == 1:
+        for node in cluster.nodes:
+            node.reset(hard=True)
 
 
 def load_commands():

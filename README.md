@@ -69,10 +69,14 @@ redis-clu remove localhost:6376 localhost:6380
 ```
 
 
-##### Destroy cluster
+##### Flush/Destroy cluster
 
 ```bash
-redis-clu destroy localhost:6376
+# flush cluster (initialize with 0 keys):
+redis-clu reset localhost:6376
+
+# destroy cluster:
+redis-clu reset localhost:6376 --hard 1
 ```
 
 
