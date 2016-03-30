@@ -14,7 +14,7 @@ Monitoring will help you to make an action.
 ##### Create cluster
 
 ```bash
-redis-clu create localhost:6376,localhost:6377,localhost:6378
+redis-clu create localhost:6376 localhost:6377 localhost:6378
 ```
 
 
