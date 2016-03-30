@@ -86,18 +86,18 @@ pass_ctx = Command.pass_ctx
 class MasterCandidate(object):
     def __init__(self, master):
         self.master = master
-        self.unassigned_slots = []
+        self.unbinded_slots = []
 
     def __getattr__(self, attr):
-        return getattr(self.node, attr)
+        return getattr(self.master, attr)
 
-    def assign_slots(self):
-        assert self.unassigned_slots
-        for chunk in self.unassigned_slots:
-            self.addslots(*range(*chunk))
+    def bind_slots(self):
+        assert self.unbinded_slots
+        for chunk in self.unbinded_slots:
+            self.add_slots(*range(*chunk))
 
     def is_enabled(self):
-        return self.unassigned_slots
+        return self.unbinded_slots
 
 
 class ClusterCreator(object):
@@ -130,7 +130,7 @@ class ClusterCreator(object):
         self.masters = masters = spread(ips, master_count)
         chunks = self.split_slot(Cluster.CLUSTER_HASH_SLOTS, master_count)
         for master, chunk in zip(masters, chunks):
-            master.unassigned_slots.append(chunk)
+            master.unbinded_slots.append(chunk)
 
         self.master_candidates = [i for i in self.master_candidates if
                                   i.is_enabled()]
@@ -143,12 +143,12 @@ class ClusterCreator(object):
             echo(name_msg.format(name=instance.name,
                                  host=instance.host, port=instance.port))
             slot_msg = ','.join(['-'.join([str(s[0]), str(s[1] - 1)])
-                                 for s in instance.unassigned_slots])
+                                 for s in instance.unbinded_slots])
             echo('\tslots:', slot_msg)
 
-    def set_slots(self):
+    def bind_slots(self):
         for master in self.masters:
-            master.assign_slots()
+            master.bind_slots()
 
     def join_cluster(self):
         if not self.masters:
@@ -158,7 +158,7 @@ class ClusterCreator(object):
         for master in self.masters[1:]:
             master.meet(first_master.host, first_master.port)
 
-    def assign_config_epoch(self):
+    def bind_config_epoch(self):
         epoch = 1
         for instance in self.masters:
             try:

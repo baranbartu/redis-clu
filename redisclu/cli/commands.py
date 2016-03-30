@@ -12,8 +12,7 @@ from redisclu.utils import echo
 @cli_helper.command
 @cli_helper.argument('masters', nargs='+')
 def create(args):
-    masters = [Node.from_uri(i) for i in args.masters]
-    creator = cli_helper.ClusterCreator(masters)
+    creator = cli_helper.ClusterCreator(args.masters)
     if not creator.check():
         echo('Pre-requirements to create cluster.\n', color='red')
         echo('\t1. At least 2 redis instances must be provided.')
@@ -23,8 +22,8 @@ def create(args):
         exit()
     creator.initialize_slots()
     creator.show_cluster_info()
-    creator.set_slots()
-    creator.assign_config_epoch()
+    creator.bind_slots()
+    creator.bind_config_epoch()
     creator.join_cluster()
     echo('Waiting for the cluster to join ', end='')
     sys.stdout.flush()
