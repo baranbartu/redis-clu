@@ -130,7 +130,7 @@ def add_multi(ctx, args):
         sub_nodes = masters[:shard_ratio]
         new_master = args.masters.pop()
         nodes = filter(lambda n: not isinstance(n, MockNode), sub_nodes)
-        nodes.extend(*(Node.from_uri(new_master),))
+        nodes.append(Node.from_uri(new_master))
         hash_slots = len(list(itertools.chain(
             *[n.slots for n in nodes])))
         sub_cluster = Cluster(nodes, hash_slots=hash_slots,
