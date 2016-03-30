@@ -15,7 +15,7 @@ setup(
     keyswords='redis cluster management replication master slave',
     packages=find_packages(),
     entry_points={
-        'console_scripts': ['rclu = redisclu.cli:main']
+        'console_scripts': ['redis-clu = redisclu.cli:main']
     },
     install_requires=[
         'hiredis',

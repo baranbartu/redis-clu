@@ -5,8 +5,8 @@ Create and manage redis cluster easily.
 Also you can make your own monitoring screen using 'watch'.
 
     brew install watch (For Mac OSx)
-    rclu status <cluster_node>
-    watch -d -n 1 'rclu status localhost:6376'
+    redis-clu status <cluster_node>
+    watch -d -n 1 'redis-clu status localhost:6376'
 
 Monitoring will help you to make an action.
 
@@ -14,14 +14,14 @@ Monitoring will help you to make an action.
 ##### Create cluster
 
 ```bash
-rclu create localhost:6376,localhost:6377,localhost:6378
+redis-clu create localhost:6376,localhost:6377,localhost:6378
 ```
 
 
 ##### Show status
 
 ```bash
-rclu status localhost:6376
+redis-clu status localhost:6376
 ```
 
 
@@ -29,13 +29,13 @@ rclu status localhost:6376
 
 ```bash
 # single node:
-rclu add localhost:6379
+redis-clu add localhost:6379
 
 # multiple nodes:
 # recommended for dynamic scaling, it will be split cluster into subclusters
 # and each subcluster will be resharding simultaneously
 # <cluster> <masters>
-rclu multi_add localhost:6376 localhost:6381,localhost:6382
+redis-clu multi_add localhost:6376 localhost:6381,localhost:6382
 ```
 
 
@@ -43,36 +43,36 @@ rclu multi_add localhost:6376 localhost:6381,localhost:6382
 
 ```bash
 # <master> <slave>
-rclu replicate localhost:6376 localhost:6385
+redis-clu replicate localhost:6376 localhost:6385
 ```
 
 
 ##### Fix cluster
 
 ```bash
-rclu fix localhost:6376
+redis-clu fix localhost:6376
 ```
 
 
 ##### Reshard cluster (Slot balancing)
 
 ```bash
-rclu reshard localhost:6376
+redis-clu reshard localhost:6376
 ```
 
 
 ##### Remove node
 
 ```bash
-# <cluster> <master>
-rclu remove localhost:6376 localhost:6380
+# <cluster> <node(master or slave)>
+redis-clu remove localhost:6376 localhost:6380
 ```
 
 
 ##### Destroy cluster
 
 ```bash
-rclu destroy localhost:6376
+redis-clu destroy localhost:6376
 ```
 
 
