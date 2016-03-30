@@ -4,7 +4,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='redisclu',
+    name='redis-clu',
     version='0.0.1',
     description='Redis Cluster Management Tool',
     long_description=open('README.md').read(),
