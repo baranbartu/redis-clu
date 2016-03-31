@@ -7,6 +7,7 @@ Create replicated+sharded redis cluster and manage it easily.
 ##### Create cluster
 
 ```bash
+# Sharded cluster (master-master)
 redis-clu create localhost:6376 localhost:6377 localhost:6378
 ```
 
@@ -37,6 +38,8 @@ redis-clu add_multi localhost:6376 localhost:6381 localhost:6382
 ##### Add slaves
 
 ```bash
+# master-slave replication
+# To make redis cluster high available, all master should have at least one slave.
 # <master> <slave>
 redis-clu replicate localhost:6376 localhost:6385
 ```
