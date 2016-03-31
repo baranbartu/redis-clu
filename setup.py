@@ -3,13 +3,18 @@
 
 from setuptools import setup
 
-version = '0.0.1'
+README = open(os.path.join(os.path.dirname(__file__), 'README.md')).read()
+
+# allow setup.py to be run from any path
+os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
+
+version = '0.0.2'
 
 setup(
     name='redis-clu',
     version=version,
     description='Redis Cluster Management Tool',
-    long_description=open('README.md').read(),
+    long_description=README,
     url='https://github.com/baranbartu/redis-clu',
     download_url='https://github.com/baranbartu/redis-clu/tarball/%s' % version,
     author='Baran Bartu Demirci',
