@@ -23,12 +23,14 @@ redis-clu status localhost:6376
 ```bash
 # single node:
 redis-clu add localhost:6379
+(optional: --keyMigrationCount <count> ) pipelined command, default 1
 
 # multiple nodes:
 # recommended for dynamic scaling, it will be split cluster into subclusters
 # and each subcluster will be resharding simultaneously
 # <cluster> <masters>
-redis-clu add_multi localhost:6376 localhost:6381 localhost:6382
+redis-clu add_multi localhost:6376 localhost:6381 localhost:6382 
+(optional: --keyMigrationCount <count> ) pipelined command, default 1
 ```
 
 
@@ -51,6 +53,7 @@ redis-clu fix localhost:6376
 
 ```bash
 redis-clu reshard localhost:6376
+(optional: --keyMigrationCount <count> ) pipelined command, default 1
 ```
 
 
@@ -59,6 +62,7 @@ redis-clu reshard localhost:6376
 ```bash
 # <cluster> <node(master or slave)>
 redis-clu remove localhost:6376 localhost:6380
+(optional: --keyMigrationCount <count> ) pipelined command, default 1
 ```
 
 
