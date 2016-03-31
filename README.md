@@ -3,6 +3,9 @@ Redis Cluster Management Tool
 
 Create sharded+replicated redis cluster and manage it easily.
 
+# Installation
+pip install redis-clu
+
 
 ##### Create cluster
 
