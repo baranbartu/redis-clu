@@ -53,11 +53,12 @@ def status(args):
     covered_slots = sum(len(n.slots) for n in cluster.masters)
     echo('Covered Slots:', covered_slots)
     if covered_slots == cluster.CLUSTER_HASH_SLOTS:
-        echo('Cluster is healthy!', color='green')
+        echo('Cluster is healthy!')
     else:
-        echo('Cluster is not healthy!!!', color='red')
-        echo('"redis-clu fix {}" would be great!'.format(args.cluster),
-             color='yellow')
+        echo('!!!Cluster is not healthy!!!')
+        echo('Either there is no cluster or exists cluster is not healthy.')
+        echo('If there is no cluster then run "redis-clu create <master_list>" or')
+        echo('"redis-clu fix {}" would be great if there is exists cluster!'.format(args.cluster))
 
     echo('\n')
 
