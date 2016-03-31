@@ -6,6 +6,7 @@ Create sharded+replicated redis cluster and manage it easily.
 # Installation
 pip install redis-clu
 
+# Usage
 
 ##### Create cluster
 
