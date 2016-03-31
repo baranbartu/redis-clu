@@ -1,7 +1,7 @@
 # redis-clu
-Redis Cluster Management Tool (Still development)
+Redis Cluster Management Tool
 
-Create replicated+sharded redis cluster and manage it easily.
+Create sharded+replicated redis cluster and manage it easily.
 
 
 ##### Create cluster
