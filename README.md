@@ -1,14 +1,7 @@
 # redis-clu
 Redis Cluster Management Tool (Still development)
-Create and manage redis cluster easily.
 
-Also you can make your own monitoring screen using 'watch'.
-
-    brew install watch (For Mac OSx)
-    redis-clu status <cluster_node>
-    watch -d -n 1 'redis-clu status localhost:6376'
-
-Monitoring will help you to make an action.
+Create replicated+sharded redis cluster and manage it easily.
 
 
 ##### Create cluster
@@ -81,6 +74,14 @@ redis-clu reset localhost:6376 --hard 1
 
 
 # Monitoring
+
+Also you can make your own basic monitoring screen using 'watch'.
+
+    brew install watch (For Mac OSx)
+    redis-clu status <cluster_node>
+    watch -d -n 1 'redis-clu status localhost:6376'
+
+Monitoring will help you to make an action.
 
 ![ScreenShot](https://raw.github.com/baranbartu/redis-clu/master/screenshot.png)
 
