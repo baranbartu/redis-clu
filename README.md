@@ -56,6 +56,8 @@ redis-clu replicate localhost:6376 localhost:6385
 
 ```bash
 redis-clu fix localhost:6376
+# If occurs "Slot <slot> is already busy" execute with "--force 1"
+redis-clu fix localhost:6376 --force 1
 ```
 
 
