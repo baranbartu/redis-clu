@@ -149,6 +149,20 @@ class Cluster(object):
             node.add_slots(*missing[i:count + i])
             i += count
 
+    def bind_slots_force(self):
+        masters = self.masters
+        slots = itertools.chain(*[n.slots for n in masters])
+        missing = list(set(range(self.CLUSTER_HASH_SLOTS)).difference(slots))
+
+        div = divide(len(missing), len(masters))
+        masters.sort(key=lambda x: len(x.slots))
+
+        i = 0
+        for count, node in zip(div, masters):
+            for slot in missing[i:count + i]:
+                self.update_slot_mapping(slot, node.name)
+            i += count
+
     def migrate_node(self, src_node):
         nodes = [n for n in self.masters if n.name != src_node.name]
         slot_count = len(src_node.slots)

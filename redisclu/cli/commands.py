@@ -71,10 +71,14 @@ def status(args):
 
 @cli_helper.command
 @cli_helper.argument('cluster')
+@cli_helper.argument('--force', default=0)
 def fix(args):
     cluster = Cluster.from_node(Node.from_uri(args.cluster))
     cluster.fix_open_slots()
-    cluster.fill_slots()
+    if int(args.force) == 1:
+        cluster.bind_slots_force()
+    else:
+        cluster.fill_slots()
     cluster.wait()
     cluster.print_attempts()
 
