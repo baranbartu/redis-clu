@@ -30,7 +30,7 @@ redis-clu status localhost:6376
 
 ```bash
 # single node:
-<cluster> <master>
+# <cluster> <master>
 redis-clu add localhost:6376 localhost:6379
 (optional: --keyMigrationCount <count> ) pipelined command, default 1
 
